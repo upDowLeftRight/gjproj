@@ -1,0 +1,2 @@
+This is a game project that is being developed for the 2019 GMTK Game Jam https://itch.io/jam/gmtk-2019
+This is a colaborative project between 2 people however we currently do not know what the project will be due to the theme having not yet been released.
