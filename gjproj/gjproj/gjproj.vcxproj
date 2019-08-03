@@ -124,7 +124,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="olcPixelGameEngine.h" />
-    <ClInclude Include="open-simplex-noise.c" />
+    <ClCompile Include="open-simplex-noise.c">
+      <FileType>CppHeader</FileType>
+    </ClCompile>
     <ClInclude Include="open-simplex-noise.h" />
   </ItemGroup>
   <ItemGroup>
