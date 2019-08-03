@@ -1,14 +1,36 @@
 ﻿  main.cpp
-C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(16): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(64): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(65): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(73): warning C4018: '<': signed/unsigned mismatch
-C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(74): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(96): warning C4018: '<': signed/unsigned mismatch
-C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(99): warning C4018: '<': signed/unsigned mismatch
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(18): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(19): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(41): warning C4018: '<': signed/unsigned mismatch
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(54): warning C4018: '>=': signed/unsigned mismatch
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(55): warning C4018: '<': signed/unsigned mismatch
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(56): warning C4018: '>=': signed/unsigned mismatch
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(95): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(112): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(120): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(123): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(126): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(156): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(161): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(162): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(163): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(164): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(176): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(177): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(188): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(189): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(190): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(191): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(196): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(197): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(214): warning C4018: '<': signed/unsigned mismatch
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(216): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(221): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(222): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(243): warning C4018: '<': signed/unsigned mismatch
   Generating code
-  2 of 678 functions ( 0.3%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    1 functions had inline decision re-evaluated but remain unchanged
+  3 of 796 functions ( 0.4%) were compiled, the rest were copied from previous compilation.
+    1 functions were new in current compilation
+    3 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   gjproj.vcxproj -> C:\Users\Joseph\source\repos\gjproj\Release\gjproj.exe

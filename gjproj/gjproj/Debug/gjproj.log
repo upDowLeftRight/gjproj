@@ -1,5 +1,29 @@
 ﻿  main.cpp
-C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(32): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(33): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(62): warning C4018: '<': signed/unsigned mismatch
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(18): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(19): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(41): warning C4018: '<': signed/unsigned mismatch
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(54): warning C4018: '>=': signed/unsigned mismatch
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(55): warning C4018: '<': signed/unsigned mismatch
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(56): warning C4018: '>=': signed/unsigned mismatch
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(95): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(112): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(120): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(123): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(126): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(153): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(158): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(159): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(160): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(161): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(173): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(174): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(185): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(186): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(187): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(188): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(193): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(194): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(211): warning C4018: '<': signed/unsigned mismatch
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(217): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(239): warning C4018: '<': signed/unsigned mismatch
   gjproj.vcxproj -> C:\Users\Joseph\source\repos\gjproj\Debug\gjproj.exe
