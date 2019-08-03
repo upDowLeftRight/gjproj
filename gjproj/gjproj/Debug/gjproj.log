@@ -1,2 +1,5 @@
 ﻿  main.cpp
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(32): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(33): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(62): warning C4018: '<': signed/unsigned mismatch
   gjproj.vcxproj -> C:\Users\Joseph\source\repos\gjproj\Debug\gjproj.exe

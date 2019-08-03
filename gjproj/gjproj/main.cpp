@@ -23,8 +23,8 @@ public:
 	void drawTileMap(int* tileMap, int tileMapW, int tileMapH, float centerW, float centerH, float drawW, float drawH) {
 		for (int y = 0; y < ScreenHeight(); y++) {
 			for (int x = 0; x < ScreenWidth(); x++) {
-				float tilePosX = x * drawW / ScreenHeight() + centerW - drawW / 2;
-				float tilePosY = y * drawH / ScreenWidth() + centerH - drawH / 2;
+				float tilePosX = x * drawW / ScreenWidth() + centerW - drawW / 2;
+				float tilePosY = y * drawH / ScreenHeight() + centerH - drawH / 2;
 				if (tilePosX < 0 || tilePosY < 0 || tilePosX >= tileMapW || tilePosY >= tileMapH) {
 					Draw(x, y, olc::BLACK);
 				}
@@ -40,7 +40,7 @@ public:
 	}
 
 	bool OnUserUpdate(float fElapsedTime) {
-		drawTileMap(map, 3, 3, 0, 0, 5, 5* aspectRatio);
+		drawTileMap(map, 3, 3, 0, 0, 5, 5 * aspectRatio);
 		/*
 		n++;dd
 		if (n >= 400 * 300) {
@@ -72,7 +72,6 @@ public:
 };
 
 int main() {
-	printf("%i", (int)-1.2f);
 	ourGame game = ourGame();
 	if (game.Construct(400, 300, 2, 2)) {
 		game.Start();
