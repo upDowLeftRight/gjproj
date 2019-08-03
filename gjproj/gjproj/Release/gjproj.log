@@ -1,10 +1,10 @@
 ﻿  main.cpp
-C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(34): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(35): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(64): warning C4018: '<': signed/unsigned mismatch
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(42): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(43): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\Joseph\source\repos\gjproj\gjproj\main.cpp(72): warning C4018: '<': signed/unsigned mismatch
   Generating code
-  2 of 617 functions ( 0.3%) were compiled, the rest were copied from previous compilation.
+  1 of 617 functions ( 0.2%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    2 functions had inline decision re-evaluated but remain unchanged
+    1 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   gjproj.vcxproj -> C:\Users\Joseph\source\repos\gjproj\Release\gjproj.exe

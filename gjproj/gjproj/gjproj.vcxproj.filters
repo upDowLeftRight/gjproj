@@ -18,6 +18,12 @@
     <ClInclude Include="olcPixelGameEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="open-simplex-noise.c">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="open-simplex-noise.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
