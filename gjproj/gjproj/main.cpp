@@ -426,7 +426,7 @@ public:
 
 class ghost: public mob{
 
-	ghost(float x, float y): {
+	ghost(float x, float y) {
 		xpos = x;
 		ypos = y;
 		health = 5;
