@@ -174,7 +174,7 @@ public:
 	bool add(Item* itemType, int ammount){
 		bool added = false;
 		for (int i = 0; i < slots.size(); i++) {
-			printf("%X, %X\n", itemType, slots[i].first);
+			//printf("%X, %X\n", itemType, slots[i].first);
 			if (itemType == slots[i].first) {
 				slots[i].second += ammount;
 				added = true;
@@ -198,8 +198,29 @@ public:
 		if (slots[activeSlot].second == 0)slots[activeSlot].first = none;
 		return i;
 	}
+	Item* remove(int count, Item* item) {
+		int slot = 0;
+		for (int i = 0; i < slots.size(); i++) {
+			if (slots[i].first == item) {
+				slot = i;
+			}
+		}
+		if (slots[slot].second < count) return none;
+		slots[slot].second -= count;
+		Item* i = slots[slot].first;
+		if (slots[slot].second == 0)slots[slot].first = none;
+		return i;
+	}
 	Item* get() {
 		return slots[activeSlot].first;
+	}
+	int find(Item* i) {
+		for (auto& slot : slots) {
+			if (slot.first == i) {
+				return slot.second;
+			}
+		}
+		return 0;
 	}
 };
 
@@ -319,6 +340,113 @@ public:
 
 };
 
+class Crafter {
+public:
+	int selectedCraft;
+	std::vector<int> craftable;
+	std::vector<std::pair<Item*, std::vector<std::pair<Item*, int>>*>> recipies;
+	std::vector<Item*>* itemVector;
+	Crafter(): craftable() {}
+	Crafter(std::vector<Item*>* itemVector): craftable(){
+		update(itemVector);
+	}
+	void update(std::vector<Item*>* itemVector) {
+		this->itemVector = itemVector;
+		std::vector<std::pair<Item*, int>>* i = new std::vector<std::pair<Item*, int>>();
+		std::pair<Item*, int> p;
+		std::pair<Item*, std::vector<std::pair<Item*, int>>*> pp;
+
+		p.first = itemVector->at(3);
+		p.second = 20;
+		i->push_back(p);
+		pp.first = itemVector->at(4);
+		pp.second = i;
+		recipies.push_back(pp);
+
+		i = new std::vector<std::pair<Item*, int>>();
+		p.first = itemVector->at(1);
+		p.second = 20;
+		i->push_back(p);
+		p.first = itemVector->at(4);
+		p.second = 1;
+		i->push_back(p);
+		pp.first = itemVector->at(5);
+		pp.second = i;
+		recipies.push_back(pp);
+	}
+	void getCraftable(Inventory* inv) {
+		craftable.clear();
+		int n = 0;
+		for (auto& recipie : recipies) {
+			bool bcraftable = true;
+			for (int i = 0; i < recipie.second->size(); i++) {
+				if (inv->find(recipie.second->at(i).first) < recipie.second->at(i).second) {
+					bcraftable = false;
+				}
+			}
+			if (bcraftable) {
+				craftable.push_back(n);
+			}
+			n++;
+		}
+		if (craftable.size() == 0) {
+			selectedCraft = 0;
+		}
+		else if (craftable.size() >= selectedCraft) {
+			selectedCraft = craftable.size() - 1;
+		}
+	}
+	void craft(Inventory* inv) {
+		if (selectedCraft < craftable.size()) {
+			inv->add(recipies.at(craftable[selectedCraft]).first, 1);
+			for (int i = 0; i < recipies.at(craftable[selectedCraft]).second->size(); i++) {
+				inv->remove(recipies.at(craftable[selectedCraft]).second->at(i).second, recipies.at(craftable[selectedCraft]).second->at(i).first);
+			}
+		}
+		getCraftable(inv);
+	}
+	void addselcraft() {
+		if (craftable.size() == 0) {
+			selectedCraft = 0;
+		}
+		selectedCraft = (selectedCraft + 1) % craftable.size();
+	}
+};
+
+class mob {
+public:
+	olc::Sprite* tex;
+	float xpos;
+	float ypos;
+	int health;
+
+	virtual void update(ourGame* og, float etime) {}
+
+};
+
+class ghost: public mob{
+
+	ghost(float x, float y): {
+		xpos = x;
+		ypos = y;
+		health = 5;
+		tex = new olc::Sprite("assets/entities/ghost.png");
+	}
+
+	void update(ourGame* og, float etime) {
+		float px = og->player.posx + 0.9;
+		float py = og->player.posy + 1.3;
+		float dx = px - xpos;
+		float dy = py - ypos;
+		float scale = sqrtf(dx * dx + dy * dy);
+		dx /= scale;
+		dy /= scale;
+		xpos += 10 * etime * dx;
+		ypos += 10 * etime * dy;
+
+	}
+};
+
 class ourGame : public olc::PixelGameEngine {
 public:
 	bool stop = false;
@@ -329,6 +457,7 @@ public:
 	Player player;
 	float xmax = 0;
 	olc::Sprite* heart;
+	Crafter crafty;
 	ourGame() : olc::PixelGameEngine(), world(0), aspectRatio(1), tiles(), player(20, 150, "assets/entities/player.png"){
 		tiles.push_back(new olc::Sprite("assets/blocks/air.png"));
 		tiles.push_back(new olc::Sprite("assets/blocks/stone.png"));
@@ -339,7 +468,9 @@ public:
 		items.push_back(new Item("assets/blocks/stone.png", 1, 0));//stone
 		items.push_back(new Item("assets/blocks/dirt.png", 2, 0));//dirt
 		items.push_back(new Item("assets/blocks/wood.png", 3, 0));//air
-		items.push_back(new Item("assets/items/woodenSword.png", 0, 5));//air
+		items.push_back(new Item("assets/ui/woodSword.png", 0, 1));//air
+		items.push_back(new Item("assets/ui/stoneSword.png", 0, 2));//air
+		items.push_back(new Item("assets/ui/ironSword.png", 0, 3));//air
 
 		heart = new olc::Sprite("assets/ui/heart.png");
 
@@ -365,6 +496,8 @@ public:
 		player.inv.slots[8].second = 0;
 
 		SetPixelMode(olc::Pixel::Mode::ALPHA);
+
+		crafty.update(&items);
 	}
 	bool OnUserCreate() {
 		aspectRatio = ScreenWidth() / (float)ScreenHeight();
@@ -448,6 +581,7 @@ public:
 			if (world.tileAt(cpx, -cpy) != 0 || world.tileAt(cpx, -cpy) != -1) {
 				player.inv.add(items[world.tileAt(cpx, -cpy)], 1);
 				world.setTileAt(cpx, -cpy, 0);
+				crafty.getCraftable(&player.inv);
 			}
 		}
 
@@ -460,7 +594,15 @@ public:
 			//printf("m0, %f, %f\n", cpx,cpy);
 			if (world.tileAt(cpx, -cpy) == 0 && player.inv.get()->placeType != 0) {
 				world.setTileAt(cpx, -cpy, player.inv.remove(1)->placeType);
+				crafty.getCraftable(&player.inv);
 			}
+		}
+
+		if (GetKey(olc::ENTER).bPressed) {
+			crafty.craft(&player.inv);
+		}
+		if (GetKey(olc::Key::Z).bPressed) {
+			crafty.addselcraft();
 		}
 		//printf("update\n");
 		player.update(&world, fElapsedTime);
@@ -487,6 +629,19 @@ public:
 		for (int i = 0; i < player.health; i++) {
 				drawTile(heart, 0, 0, 13, 13 / aspectRatio, i - 2.5f, -3.5);
 		}
+
+		for (int i = 0; i < crafty.craftable.size(); i++) {
+			//printf("%i\n", crafty.craftable[i]);
+			//printf("%X, %X", )
+			if (i == crafty.selectedCraft) {
+				drawTile(player.inv.icosel, 0, 0, 13, 13 / aspectRatio, -6, i - 3.5);
+			}
+			else {
+				drawTile(player.inv.ico, 0, 0, 13, 13 / aspectRatio, -6, i - 3.5);
+			}
+			drawTile(&crafty.recipies.at(crafty.craftable[i]).first->icon, 0, 0, 13, 13 / aspectRatio, -6, i-3.5);
+		}
+
 		return true;
 	}
 
