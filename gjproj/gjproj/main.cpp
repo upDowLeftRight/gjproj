@@ -48,7 +48,7 @@ public:
 			for (int y = h; y < h+dirth; y++) {
 				data[y * width + x] = 2;
 			}
-			if (x % 4 == 0 && (open_simplex_noise2(osCont, (double)(x + (chunk * width)) / 400, 400))>0.05) {
+			if (x % 4 == 0 && (open_simplex_noise2(osCont, (double)(x + (chunk * width)) / 50, 400))>0.05) {
 				for (int i = 0; i <4+ (rand() % 12); i++) {
 					data[(i+h + dirth) * width + x] = 3;
 				}
@@ -417,6 +417,7 @@ public:
 
 class mob {
 public:
+	float ghosthurtcool;
 	olc::Sprite* tex;
 	float xpos;
 	float ypos;
@@ -429,11 +430,15 @@ public:
 class ghost: public mob{
 public:
 	float damageCoolDown;
+	olc::Sprite* gh;
+	olc::Sprite* gn;
 	ghost(float x, float y) {
 		xpos = x;
 		ypos = y;
-		health = 5;
-		tex = new olc::Sprite("assets/entities/ghost.png");
+		health = 3;
+		gn = new olc::Sprite("assets/entities/ghost.png");
+		gh = new olc::Sprite("assets/entities/ghosthurt.png");
+		tex = gn;
 	}
 
 	void update(void* og, float etime);
@@ -548,7 +553,14 @@ public:
 		}
 	}
 
+	float countdown = 10;
+
 	bool OnUserUpdate(float fElapsedTime) {
+		countdown -= fElapsedTime;
+		if (countdown < 0) {
+			mobs.push_back(new ghost(player.posx + 30, player.posy + 10));
+			countdown = 10 + rand() % 10;
+		}
 		int screenTileW = 50;
 		if (player.posx > xmax) xmax = player.posx;
 		player.moveDown = GetKey(olc::Key::DOWN).bHeld || GetKey(olc::Key::S).bHeld;
@@ -591,6 +603,21 @@ public:
 				crafty.getCraftable(&player.inv);
 			}
 		}
+		if (GetMouse(1).bPressed) {
+			//cpy = Chunk::height - cpy;
+			//printf("m0, %f, %f\n", cpx,cpy);
+			if (player.inv.get()->attackDamage != 0){
+				for (int i = 0; i < mobs.size(); i++) {
+					float dx = player.posx - mobs[i]->xpos;
+					float dy = player.posy - mobs[i]->ypos;
+					float scale = sqrtf(dx * dx + dy * dy);
+					if (scale < 5) {
+						mobs[i]->health -= player.inv.get()->attackDamage;
+						mobs[i]->ghosthurtcool = 1;
+					}
+				}
+			}
+		}
 
 		if (GetKey(olc::ENTER).bPressed) {
 			crafty.craft(&player.inv);
@@ -602,20 +629,26 @@ public:
 		player.update(&world, fElapsedTime);
 
 		for (int i = 0; i < mobs.size(); i++) {
-			mobs[i]->update(this, fElapsedTime);
+			if (mobs[i]->health < 0) {
+				delete mobs[i];
+				mobs.erase(mobs.begin()+i);
+				i--;
+			}
+			else {
+				mobs[i]->update(this, fElapsedTime);
+			}
 		}
 
 		world.load(xmax, screenTileW);
 		for (int i = 0; i < world.chunks.size(); i++) {
 			if (world.loaded[i]) {
-				drawTileMap(world.chunks[i]->data, Chunk::width, Chunk::height, 0, 0, screenTileW, screenTileW / aspectRatio, i*Chunk::width - xmax, - player.posy, false);
-
+				drawTileMap(world.chunks[i]->data, Chunk::width, Chunk::height, 0, 0, screenTileW, screenTileW / aspectRatio, i*Chunk::width - xmax, - player.posy, false);   
 			}
 		}
 		drawTile(&player.sprite, 0, 0, screenTileW/2, screenTileW / aspectRatio/3, (player.posx - xmax)/2, -2/3.0);
 
 		for (int i = 0; i < mobs.size(); i++) {
-			drawTile(mobs[i]->tex, 0, 0, screenTileW / 2, screenTileW / aspectRatio / 2, (player.posx - xmax) / 2, -2 / 2.0);
+			drawTile(mobs[i]->tex, 0, 0, screenTileW / 2, screenTileW / aspectRatio / 2, (mobs[i]->xpos - xmax) / 2, (-mobs[i]->ypos + player.posy - 2) / 2.0);
 		}
 
 		olc:Item* tmpItem;
@@ -681,11 +714,23 @@ void ghost::update(void* og, float etime) {
 	float scale = sqrtf(dx * dx + dy * dy);
 	dx /= scale;
 	dy /= scale;
-	xpos += 10 * etime * dx;
-	ypos += 10 * etime * dy;
-	if (scale < 1) {
-		((ourGame*)og)->player.health -= 1;
+	xpos += 3 * etime * dx;
+	ypos += 3 * etime * dy;
+	damageCoolDown -= etime;
+	printf("%f\n", scale);
+	if (damageCoolDown < 0) {
+		if (scale < 1) {
+			((ourGame*)og)->player.health -= 1;
+			damageCoolDown = 1.5f;
+		}
+
 	}
+	//if (ghosthurtcool < 0) {
+	//	tex = gn;
+	//}
+	//else {
+	//	tex = gh;
+	//}
 }
 
 int main() {
