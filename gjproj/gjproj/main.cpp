@@ -48,7 +48,7 @@ public:
 			for (int y = h; y < h+dirth; y++) {
 				data[y * width + x] = 2;
 			}
-			if (x % 4 == 0 && (open_simplex_noise2(osCont, (double)(x + (chunk * width)) / 2000, 400))>0) {
+			if (x % 4 == 0 && (open_simplex_noise2(osCont, (double)(x + (chunk * width)) / 400, 400))>0.05) {
 				for (int i = 0; i <4+ (rand() % 12); i++) {
 					data[(i+h + dirth) * width + x] = 3;
 				}
@@ -482,6 +482,10 @@ public:
 				drawTile(player.inv.ico, 0, 0, 13, 13 / aspectRatio, i-4.5f,2.5);
 			}
 			drawTile(&player.inv.slots[i].first->icon, 0, 0, 19, 19 / aspectRatio, (i - 4.3) * 19.0f / 13, 2.7f * 19.0f / 13);
+		}
+
+		for (int i = 0; i < player.health; i++) {
+				drawTile(heart, 0, 0, 13, 13 / aspectRatio, i - 2.5f, -3.5);
 		}
 		return true;
 	}
