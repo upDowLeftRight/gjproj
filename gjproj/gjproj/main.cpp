@@ -149,6 +149,8 @@ public:
 class Item {
 public:
 	olc::Sprite icon;
+	float width = 2;
+	float height = 2;
 	int placeType;
 	int attackDamage;
 	Item(const char* fname, int pt, int ad): icon(fname), placeType(pt), attackDamage(ad) {}
@@ -420,12 +422,13 @@ public:
 	float ypos;
 	int health;
 
-	virtual void update(ourGame* og, float etime) {}
+	virtual void update(void* og, float etime) {}
 
 };
 
 class ghost: public mob{
-
+public:
+	float damageCoolDown;
 	ghost(float x, float y) {
 		xpos = x;
 		ypos = y;
@@ -433,18 +436,7 @@ class ghost: public mob{
 		tex = new olc::Sprite("assets/entities/ghost.png");
 	}
 
-	void update(ourGame* og, float etime) {
-		float px = og->player.posx + 0.9;
-		float py = og->player.posy + 1.3;
-		float dx = px - xpos;
-		float dy = py - ypos;
-		float scale = sqrtf(dx * dx + dy * dy);
-		dx /= scale;
-		dy /= scale;
-		xpos += 10 * etime * dx;
-		ypos += 10 * etime * dy;
-
-	}
+	void update(void* og, float etime);
 };
 
 class ourGame : public olc::PixelGameEngine {
@@ -458,6 +450,7 @@ public:
 	float xmax = 0;
 	olc::Sprite* heart;
 	Crafter crafty;
+	std::vector<mob*> mobs;
 	ourGame() : olc::PixelGameEngine(), world(0), aspectRatio(1), tiles(), player(20, 150, "assets/entities/player.png"){
 		tiles.push_back(new olc::Sprite("assets/blocks/air.png"));
 		tiles.push_back(new olc::Sprite("assets/blocks/stone.png"));
@@ -500,6 +493,7 @@ public:
 		crafty.update(&items);
 	}
 	bool OnUserCreate() {
+		mobs.push_back(new ghost(40, 140));
 		aspectRatio = ScreenWidth() / (float)ScreenHeight();
 		//world = World(0);
 		world.load(player.posx, 40);
@@ -607,6 +601,10 @@ public:
 		//printf("update\n");
 		player.update(&world, fElapsedTime);
 
+		for (int i = 0; i < mobs.size(); i++) {
+			mobs[i]->update(this, fElapsedTime);
+		}
+
 		world.load(xmax, screenTileW);
 		for (int i = 0; i < world.chunks.size(); i++) {
 			if (world.loaded[i]) {
@@ -616,6 +614,19 @@ public:
 		}
 		drawTile(&player.sprite, 0, 0, screenTileW/2, screenTileW / aspectRatio/3, (player.posx - xmax)/2, -2/3.0);
 
+		for (int i = 0; i < mobs.size(); i++) {
+			drawTile(mobs[i]->tex, 0, 0, screenTileW / 2, screenTileW / aspectRatio / 2, (player.posx - xmax) / 2, -2 / 2.0);
+		}
+
+		olc:Item* tmpItem;
+
+		tmpItem = player.inv.slots[player.inv.activeSlot].first;
+
+		if (tmpItem != items[0]) {
+
+			drawTile(&tmpItem->icon, 0, 0, screenTileW / tmpItem->width, screenTileW / aspectRatio / tmpItem->height, (player.posx - xmax + 2) / tmpItem->width, -2.0 / (float)tmpItem->height);
+
+		}
 		for (int i = 0; i < player.inv.slots.size(); i++) {
 			if (i == player.inv.activeSlot) {
 				drawTile(player.inv.icosel, 0, 0, 13, 13 / aspectRatio, i - 4.5f, 2.5);
@@ -661,6 +672,21 @@ public:
 
 
 };
+
+void ghost::update(void* og, float etime) {
+	float px = ((ourGame*)og)->player.posx + 0.9;
+	float py = ((ourGame*)og)->player.posy + 1.3;
+	float dx = px - xpos;
+	float dy = py - ypos;
+	float scale = sqrtf(dx * dx + dy * dy);
+	dx /= scale;
+	dy /= scale;
+	xpos += 10 * etime * dx;
+	ypos += 10 * etime * dy;
+	if (scale < 1) {
+		((ourGame*)og)->player.health -= 1;
+	}
+}
 
 int main() {
 	int sx = 500;
