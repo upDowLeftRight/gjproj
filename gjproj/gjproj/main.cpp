@@ -2,7 +2,7 @@
 #include "olcPixelGameEngine.h"
 #include "open-simplex-noise.h"
 
-#define simplexScale 80
+#define simplexScale 30
 #define amplitude 0.2f
 
 #define g 100.0f
@@ -49,9 +49,14 @@ public:
 				data[y * width + x] = 2;
 			}
 		}
+		caclcols(chunk);
 		
+	}
+	void caclcols(int chunk) {
+		boxes.clear();
+
 		for (int y = 0; y < height; y++) {
-			for(int x = 0; x < width; x++)
+			for (int x = 0; x < width; x++)
 				if (data[y * width + x] != 0) {
 					if (x == 0 || y == 0 || x == width - 1 || y == height - 1) {
 						Rect box;
@@ -78,7 +83,6 @@ public:
 					}
 				}
 		}
-		
 	}
 };
 
@@ -129,6 +133,12 @@ public:
 		}
 		return -1;
 	}
+	void setTileAt(int x, int y, int type) {
+		if (x >= 0 && x / Chunk::width <= width && loaded[x / Chunk::width] && y < Chunk::height && y >= 0) {
+			chunks[x / Chunk::width]->data[y * Chunk::width + x % Chunk::width]=type;
+			chunks[x / Chunk::width]->caclcols(x / Chunk::width);
+		}
+	}
 };
 
 class Item {
@@ -156,8 +166,25 @@ public:
 		delete ico;
 		delete icosel;
 	}
-	bool add(){
-		return false;
+	bool add(Item* itemType, int ammount){
+		bool added = false;
+		for (int i = 0; i < slots.size(); i++) {
+			printf("%X, %X\n", itemType, slots[i].first);
+			if (itemType == slots[i].first) {
+				slots[i].second += ammount;
+				added = true;
+				return true;
+			}
+		}
+		for (int i = 0; i < slots.size(); i++) {
+			if (none == slots[i].first) {
+				slots[i].first = itemType;
+				slots[i].second = ammount;
+				added = true;
+				break;
+			}
+		}
+		return added;
 	}
 };
 
@@ -212,12 +239,14 @@ public:
 
 		float posxn = posx + velx * fElapsedTime;
 		float posyn = posy + vely * fElapsedTime;
-
+		if ((int)posxn / Chunk::width-1 < 0 || !world->loaded[(int)posxn / Chunk::width-1]) {
+			return;
+		}
 		Rect hb;
 		hb.down = posyn;
 		hb.left = posxn;
-		hb.right = posxn + 2;
-		hb.up = posyn + 3;
+		hb.right = posxn + 1.8;
+		hb.up = posyn + 2.6;
 		int i = 0;
 		bool colide = false;
 		for (auto& ch : world->chunks) {
@@ -247,8 +276,8 @@ public:
 			Rect hb;
 			hb.down = posyn;
 			hb.left = posxn;
-			hb.right = posxn + 2;
-			hb.up = posyn + 3;
+			hb.right = posxn + 1.8;
+			hb.up = posyn + 2.6;
 			int i = 0;
 			bool colide = false;
 			for (auto& ch : world->chunks) {
@@ -270,7 +299,7 @@ public:
 				posy = posyn;
 			}
 		}
-		printf("x: %i, y: %i", posx, posy);
+		//printf("x: %i, y: %i", posx, posy);
 	}
 
 };
@@ -315,12 +344,19 @@ public:
 		player.inv.slots[7].second = 0;
 		player.inv.slots[8].first = items[0];
 		player.inv.slots[8].second = 0;
+
+		SetPixelMode(olc::Pixel::Mode::ALPHA);
 	}
 	bool OnUserCreate() {
 		aspectRatio = ScreenWidth() / (float)ScreenHeight();
 		//world = World(0);
 		world.load(player.posx, 40);
 		return true;
+	}
+
+	void screenToBlock(float centerW, float centerH, float drawW, float drawH, float xoff, float yoff, int sx, int sy, float* tx, float* ty) {
+		*tx = sx * drawW / ScreenWidth() + centerW - xoff - drawW / 2;
+		*ty = sy * drawH / ScreenHeight() + centerH - yoff - drawH / 2;
 	}
 
 	void drawTileMap(int* tileMap, int tileMapW, int tileMapH, float centerW, float centerH, float drawW, float drawH, float xoff, float yoff, bool fillClear = false) {
@@ -383,8 +419,19 @@ public:
 		if (GetKey(olc::Key::K8).bHeld) player.inv.activeSlot = 7;
 		if (GetKey(olc::Key::K9).bHeld) player.inv.activeSlot = 8;
 
-
-		printf("update\n");
+		if (GetMouse(0).bHeld) {
+			//printf("m0\n");
+			float cpx;
+			float cpy;
+			screenToBlock(0, 0, screenTileW, screenTileW / aspectRatio, -xmax, player.posy, GetMouseX(), GetMouseY(), &cpx, &cpy);
+			//cpy = Chunk::height - cpy;
+			//printf("m0, %f, %f\n", cpx,cpy);
+			if (world.tileAt(cpx, -cpy) != 0 || world.tileAt(cpx, -cpy) != -1) {
+				player.inv.add(items[world.tileAt(cpx, -cpy)], 1);
+				world.setTileAt(cpx, -cpy, 0);
+			}
+		}
+		//printf("update\n");
 		player.update(&world, fElapsedTime);
 
 		world.load(xmax, screenTileW);
@@ -403,6 +450,7 @@ public:
 			else {
 				drawTile(player.inv.ico, 0, 0, 13, 13 / aspectRatio, i-4.5f,2.5);
 			}
+			drawTile(&player.inv.slots[i].first->icon, 0, 0, 15, 15 / aspectRatio, (i - 4.5) * 15.0f / 13, 2.5f * 15 / 13);
 		}
 		return true;
 	}
