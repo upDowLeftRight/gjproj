@@ -7,12 +7,37 @@
 
 #define g 100.0f
 
+struct Rect {
+	float left;
+	float right;
+	float up;
+	float down;
+};
+
+bool rrColide(Rect* r1, Rect* r2) {
+	if (r1->up < r2->down) {
+		return false;
+	}
+	else if (r1->down > r2->up) {
+		return false;
+	}
+	else if (r1->left > r2->right) {
+		return false;
+	}
+	else if (r1->right < r2->left) {
+		return false;
+	}
+	return true;
+}
+
 class Chunk {
 public:
 	static const int width = 16;
 	static const int height = 256;
 	int data[width * height];
+	std::vector<Rect> boxes;
 	void generate(osn_context* osCont, int chunk) {
+		boxes = std::vector<Rect>();
 		memset(data, 0, sizeof(int) * width * height);
 		for (int x = 0; x < width; x++) {
 			int h = (open_simplex_noise2(osCont, (double)(x+(chunk*width)) / simplexScale, 0)*amplitude+1)/2*height;
@@ -24,6 +49,36 @@ public:
 				data[y * width + x] = 2;
 			}
 		}
+		
+		for (int y = 0; y < height; y++) {
+			for(int x = 0; x < width; x++)
+				if (data[y * width + x] != 0) {
+					if (x == 0 || y == 0 || x == width - 1 || y == height - 1) {
+						Rect box;
+						box.left = x + chunk * width;
+						box.right = x + chunk * width + 1;
+						box.up = y + 1;
+						box.down = y;
+						boxes.push_back(box);
+					}
+					else {
+						if (data[y * width + x + 1] == 0 ||
+							data[y * width + x - 1] == 0 ||
+							data[y * width + x + width] == 0 ||
+							data[y * width + x - width] == 0) {
+
+							Rect box;
+							box.left = x + chunk * width;
+							box.right = x + chunk * width + 1;
+							box.up = y + 1;
+							box.down = y;
+							boxes.push_back(box);
+
+						}
+					}
+				}
+		}
+		
 	}
 };
 
@@ -76,6 +131,36 @@ public:
 	}
 };
 
+class Item {
+public:
+	olc::Sprite icon;
+	int placeType;
+	int attackDamage;
+	Item(const char* fname, int pt, int ad): icon(fname), placeType(pt), attackDamage(ad) {}
+	~Item() {
+	}
+};
+
+class Inventory {
+public:
+	std::vector<std::pair<Item*, int>> slots;
+	int activeSlot = 0;
+	olc::Sprite* ico;
+	olc::Sprite* icosel;
+	Item* none;
+	Inventory(): slots(9), activeSlot(0){
+		ico = new olc::Sprite("assets/ui/hotbar.png");
+		icosel = new olc::Sprite("assets/ui/hotbar selected.png");
+	}
+	~Inventory() {
+		delete ico;
+		delete icosel;
+	}
+	bool add(){
+		return false;
+	}
+};
+
 class Player {
 public:
 	float posx;
@@ -92,24 +177,29 @@ public:
 	bool moveDown = false;
 	bool landed = false;
 	olc::Sprite sprite;
-	Player(int px, int py, const char* fname) : sprite(fname), posx(px), posy(py)  {
+	Inventory inv;
+	Player(int px, int py, const char* fname) : sprite(fname), posx(px), posy(py), inv() {
 
 	}
 	void update(World* world, float fElapsedTime) {
 		if (moveLeft) {
-			velx -= 100 * fElapsedTime;
+			velx = -20;
 		}
-		if (moveRight) {
-			velx += 100 * fElapsedTime;
+		else if (moveRight) {
+			velx = 20;
+		}
+		else {
+			velx = 0;
 		}
 		if (moveDown) {
-			vely -= 100 * fElapsedTime;
+			vely -= 10;
 		}
 		if (moveUp && landed) {
-			vely += 50;
+			vely += 30;
 			landed = false;
 		}
-		if (world->tileAt(posx, posy - 1) == 0 || world->tileAt(posx, posy - 1) == -1) {
+		
+		if (world->tileAt(posx, posy - 1) == 0 && world->tileAt(posx-1, posy - 1) == 0) {
 			vely -= g * fElapsedTime;
 			landed = false;
 		}
@@ -117,21 +207,70 @@ public:
 			vely = 0;
 			landed = true;
 		}
-		if (velx > 0 && !(world->tileAt(posx + 1, posy) == 0)) {
-			velx = 0;
+		//velx *= 0.9f;
+		//vely *= 0.95f;
+
+		float posxn = posx + velx * fElapsedTime;
+		float posyn = posy + vely * fElapsedTime;
+
+		Rect hb;
+		hb.down = posyn;
+		hb.left = posxn;
+		hb.right = posxn + 2;
+		hb.up = posyn + 3;
+		int i = 0;
+		bool colide = false;
+		for (auto& ch : world->chunks) {
+			if (world->loaded[i]) {
+				for (auto& hb2 : ch->boxes) {
+					if (rrColide(&hb, &hb2)) {
+						//printf("stuck");
+						colide = true;
+						break;
+					}
+				}
+				if (colide) break;
+			}
+			i++;
 		}
-		if (velx < 0 && !(world->tileAt(posx - 1, posy) == 0)) {
-			velx = 0;
+		if (!colide) {
+			posx = posxn;
+			posy = posyn;
 		}
-		if (vely > 0 && !(world->tileAt(posx, posy + 1) == 0)) {
+		else {
+			colide = false;
 			vely = 0;
+			landed = true;
+			float posxn = posx + velx * fElapsedTime;
+			float posyn = posy + vely * fElapsedTime;
+
+			Rect hb;
+			hb.down = posyn;
+			hb.left = posxn;
+			hb.right = posxn + 2;
+			hb.up = posyn + 3;
+			int i = 0;
+			bool colide = false;
+			for (auto& ch : world->chunks) {
+				if (world->loaded[i]) {
+					for (auto& hb2 : ch->boxes) {
+						if (rrColide(&hb, &hb2)) {
+							//printf("stuck");
+							colide = true;
+							break;
+						}
+					}
+					if (colide) break;
+				}
+				i++;
+
+			}
+			if (!colide) {
+				posx = posxn;
+				posy = posyn;
+			}
 		}
-		velx *= 0.95f;
-		vely *= 0.95f;
-
-		posx += velx * fElapsedTime;
-		posy += vely * fElapsedTime;
-
+		printf("x: %i, y: %i", posx, posy);
 	}
 
 };
@@ -140,18 +279,45 @@ class ourGame : public olc::PixelGameEngine {
 public:
 	bool stop = false;
 	std::vector<olc::Sprite*> tiles;
+	std::vector<Item*> items;
 	float aspectRatio;
 	World world;
 	Player player;
+	float xmax = 0;
 	ourGame() : olc::PixelGameEngine(), world(0), aspectRatio(1), tiles(), player(20, 150, "assets/entities/player.png"){
+		tiles.push_back(new olc::Sprite("assets/blocks/air.png"));
+		tiles.push_back(new olc::Sprite("assets/blocks/stone.png"));
+		tiles.push_back(new olc::Sprite("assets/blocks/dirt.png"));
+		tiles.push_back(new olc::Sprite("assets/blocks/iron.png"));
 
+		items.push_back(new Item("assets/blocks/w.png", 0, 0));//air
+		items.push_back(new Item("assets/blocks/stone.png", 1, 0));//stone
+		items.push_back(new Item("assets/blocks/dirt.png", 2, 0));//dirt
+		items.push_back(new Item("assets/items/woodenSword.png", 0, 5));//air
+
+		player.inv.none = items[0];
+
+		player.inv.slots[0].first = items[0];
+		player.inv.slots[0].second = 0;
+		player.inv.slots[1].first = items[0];
+		player.inv.slots[1].second = 0;
+		player.inv.slots[2].first = items[0];
+		player.inv.slots[2].second = 0;
+		player.inv.slots[3].first = items[0];
+		player.inv.slots[3].second = 0;
+		player.inv.slots[4].first = items[0];
+		player.inv.slots[4].second = 0;
+		player.inv.slots[5].first = items[0];
+		player.inv.slots[5].second = 0;
+		player.inv.slots[6].first = items[0];
+		player.inv.slots[6].second = 0;
+		player.inv.slots[7].first = items[0];
+		player.inv.slots[7].second = 0;
+		player.inv.slots[8].first = items[0];
+		player.inv.slots[8].second = 0;
 	}
 	bool OnUserCreate() {
 		aspectRatio = ScreenWidth() / (float)ScreenHeight();
-		tiles.push_back(new olc::Sprite("assets/blocks/air.png"));
-		tiles.push_back(new olc::Sprite("assets/test.png"));
-		tiles.push_back(new olc::Sprite("assets/blocks/dirt.png"));
-		tiles.push_back(new olc::Sprite("assets/blocks/iron.png"));
 		//world = World(0);
 		world.load(player.posx, 40);
 		return true;
@@ -191,8 +357,8 @@ public:
 		int yStop = (1 < (1 + centerH + yoff + drawH / 2) / drawH) ? ScreenHeight() : (1 + centerH + yoff + drawH / 2) * ScreenHeight() / drawH;
 		for (int y = yStart; y < yStop; y++) {
 			for (int x = xStart; x < xStop; x++) {
-				float tilePosX = x * drawW / ScreenWidth() + centerW - xoff;
-				float tilePosY = y * drawH / ScreenHeight() + centerH - yoff;
+				float tilePosX = x * drawW / ScreenWidth() + centerW - xoff - drawW / 2;
+				float tilePosY = y * drawH / ScreenHeight() + centerH - yoff - drawH / 2;
 				int spritePX = (tilePosX - (int)tilePosX) * tile->width;
 				int spritePY = (tilePosY - (int)tilePosY) * tile->height;
 				Draw(x, y, tile->GetPixel(spritePX, spritePY));
@@ -201,41 +367,43 @@ public:
 	}
 
 	bool OnUserUpdate(float fElapsedTime) {
-		int screenTileW = 30;
+		int screenTileW = 50;
+		if (player.posx > xmax) xmax = player.posx;
 		player.moveDown = GetKey(olc::Key::DOWN).bHeld || GetKey(olc::Key::S).bHeld;
-		player.moveUp = GetKey(olc::Key::UP).bHeld || GetKey(olc::Key::W).bHeld;
+		player.moveUp = GetKey(olc::Key::UP).bHeld || GetKey(olc::Key::W).bHeld || GetKey(olc::Key::SPACE).bHeld;
 		player.moveLeft = GetKey(olc::Key::LEFT).bHeld || GetKey(olc::Key::A).bHeld;
 		player.moveRight = GetKey(olc::Key::RIGHT).bHeld || GetKey(olc::Key::D).bHeld;
+		if (GetKey(olc::Key::K1).bHeld) player.inv.activeSlot = 0;
+		if (GetKey(olc::Key::K2).bHeld) player.inv.activeSlot = 1;
+		if (GetKey(olc::Key::K3).bHeld) player.inv.activeSlot = 2;
+		if (GetKey(olc::Key::K4).bHeld) player.inv.activeSlot = 3;
+		if (GetKey(olc::Key::K5).bHeld) player.inv.activeSlot = 4;
+		if (GetKey(olc::Key::K6).bHeld) player.inv.activeSlot = 5;
+		if (GetKey(olc::Key::K7).bHeld) player.inv.activeSlot = 6;
+		if (GetKey(olc::Key::K8).bHeld) player.inv.activeSlot = 7;
+		if (GetKey(olc::Key::K9).bHeld) player.inv.activeSlot = 8;
 
 
-
+		printf("update\n");
 		player.update(&world, fElapsedTime);
 
+		world.load(xmax, screenTileW);
 		for (int i = 0; i < world.chunks.size(); i++) {
 			if (world.loaded[i]) {
-				drawTileMap(world.chunks[i]->data, Chunk::width, Chunk::height, 0, 0, screenTileW, screenTileW / aspectRatio, i*Chunk::width - player.posx, - player.posy, false);
+				drawTileMap(world.chunks[i]->data, Chunk::width, Chunk::height, 0, 0, screenTileW, screenTileW / aspectRatio, i*Chunk::width - xmax, - player.posy, false);
 
 			}
 		}
-		int t = 1;
-		world.load(player.posx, screenTileW);
-		drawTile(&player.sprite, 0, 0, screenTileW/2, screenTileW / aspectRatio/3, -1.0f/3, -1);
-		/*
-		n++;
-		if (n >= 400 * 300) {
-			stop = true;
-		}
-		if (!stop) {
-			for (int i = 2; i < n; i++) {
-				if ((n / i) * i == n) {
-					Draw(n % 400, n / 400, olc::Pixel(0, 0, 0));
-					return true;
-				}
-				//printf("%i\n", n);
+		drawTile(&player.sprite, 0, 0, screenTileW/2, screenTileW / aspectRatio/3, (player.posx - xmax)/2, -2/3.0);
+
+		for (int i = 0; i < player.inv.slots.size(); i++) {
+			if (i == player.inv.activeSlot) {
+				drawTile(player.inv.icosel, 0, 0, 13, 13 / aspectRatio, i - 4.5f, 2.5);
 			}
-			Draw(n % 400, n / 400, olc::Pixel(255, 255, 255));
+			else {
+				drawTile(player.inv.ico, 0, 0, 13, 13 / aspectRatio, i-4.5f,2.5);
+			}
 		}
-		*/
 		return true;
 	}
 
@@ -251,8 +419,19 @@ public:
 };
 
 int main() {
+	int sx = 500;
+	int sy = 300;
+	int ps = 2;
+	printf("Welcome to The Quest Must go on.");
+	printf("we hope you enjoy playing our game.");
+	printf("To start please select a screen width(this game uses per pixel software rendering and performance is abismal at even moderate resolution): ");
+	scanf_s("%i", &sx);
+	printf("Please select a screen height: ");
+	scanf_s("%i", &sy);
+	printf("please select a pixelSize(increses the number of pixels taken up by each rendered pixel, helps se the game without a magnifier of low frame rate): ");
+	scanf_s("%i", &ps);
 	ourGame game = ourGame();
-	if (game.Construct(800, 600, 1, 1)) {
+	if (game.Construct(sx, sy, ps, ps)) {
 		game.Start();
 	}
 	return 0;
