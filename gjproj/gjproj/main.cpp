@@ -686,7 +686,7 @@ public:
 			drawTile(&crafty.recipies.at(crafty.craftable[i]).first->icon, 0, 0, 13, 13 / aspectRatio, -6, i-3.5);
 		}
 
-		return true;
+		return player.health > 0;
 	}
 
 	bool OnUserDestroy() {
