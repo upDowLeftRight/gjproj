@@ -48,6 +48,11 @@ public:
 			for (int y = h; y < h+dirth; y++) {
 				data[y * width + x] = 2;
 			}
+			if (x % 4 == 0 && (open_simplex_noise2(osCont, (double)(x + (chunk * width)) / 2000, 400))>0) {
+				for (int i = 0; i <4+ (rand() % 12); i++) {
+					data[(i+h + dirth) * width + x] = 3;
+				}
+			}
 		}
 		caclcols(chunk);
 		
@@ -186,6 +191,16 @@ public:
 		}
 		return added;
 	}
+	Item* remove(int count) {
+		if (slots[activeSlot].second < count) return none;
+		slots[activeSlot].second -= count;
+		Item* i = slots[activeSlot].first;
+		if (slots[activeSlot].second == 0)slots[activeSlot].first = none;
+		return i;
+	}
+	Item* get() {
+		return slots[activeSlot].first;
+	}
 };
 
 class Player {
@@ -313,16 +328,20 @@ public:
 	World world;
 	Player player;
 	float xmax = 0;
+	olc::Sprite* heart;
 	ourGame() : olc::PixelGameEngine(), world(0), aspectRatio(1), tiles(), player(20, 150, "assets/entities/player.png"){
 		tiles.push_back(new olc::Sprite("assets/blocks/air.png"));
 		tiles.push_back(new olc::Sprite("assets/blocks/stone.png"));
 		tiles.push_back(new olc::Sprite("assets/blocks/dirt.png"));
-		tiles.push_back(new olc::Sprite("assets/blocks/iron.png"));
+		tiles.push_back(new olc::Sprite("assets/blocks/wood.png"));
 
 		items.push_back(new Item("assets/blocks/w.png", 0, 0));//air
 		items.push_back(new Item("assets/blocks/stone.png", 1, 0));//stone
 		items.push_back(new Item("assets/blocks/dirt.png", 2, 0));//dirt
+		items.push_back(new Item("assets/blocks/wood.png", 3, 0));//air
 		items.push_back(new Item("assets/items/woodenSword.png", 0, 5));//air
+
+		heart = new olc::Sprite("assets/ui/heart.png");
 
 		player.inv.none = items[0];
 
@@ -431,6 +450,18 @@ public:
 				world.setTileAt(cpx, -cpy, 0);
 			}
 		}
+
+		if (GetMouse(1).bHeld) {
+			//printf("m0\n");
+			float cpx;
+			float cpy;
+			screenToBlock(0, 0, screenTileW, screenTileW / aspectRatio, -xmax, player.posy, GetMouseX(), GetMouseY(), &cpx, &cpy);
+			//cpy = Chunk::height - cpy;
+			//printf("m0, %f, %f\n", cpx,cpy);
+			if (world.tileAt(cpx, -cpy) == 0 && player.inv.get()->placeType != 0) {
+				world.setTileAt(cpx, -cpy, player.inv.remove(1)->placeType);
+			}
+		}
 		//printf("update\n");
 		player.update(&world, fElapsedTime);
 
@@ -450,7 +481,7 @@ public:
 			else {
 				drawTile(player.inv.ico, 0, 0, 13, 13 / aspectRatio, i-4.5f,2.5);
 			}
-			drawTile(&player.inv.slots[i].first->icon, 0, 0, 15, 15 / aspectRatio, (i - 4.5) * 15.0f / 13, 2.5f * 15 / 13);
+			drawTile(&player.inv.slots[i].first->icon, 0, 0, 19, 19 / aspectRatio, (i - 4.3) * 19.0f / 13, 2.7f * 19.0f / 13);
 		}
 		return true;
 	}
@@ -459,6 +490,12 @@ public:
 		for (int i = 0; i < tiles.size(); i++) {
 			delete tiles[i];
 		}
+
+		for (int i = 0; i < items.size(); i++) {
+			delete items[i];
+		}
+		delete heart;
+
 		return true;
 	}
 
